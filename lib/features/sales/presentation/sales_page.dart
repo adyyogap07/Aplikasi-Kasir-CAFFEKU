@@ -111,76 +111,113 @@ class SalesPage extends ConsumerWidget {
     final totalTransaksi = filteredOrders.length;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Laporan Penjualan'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: () => _showExportOptions(context, filteredOrders, dateRange),
-            tooltip: 'Ekspor Laporan',
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => ref.refresh(allSalesOrdersProvider.future),
-        child: Column(
-          children: [
-            InkWell(
-              onTap: () => _selectDateRange(context, ref),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${DateFormat('d MMM y', 'id_ID').format(dateRange.start)} - ${DateFormat('d MMM y', 'id_ID').format(dateRange.end)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                  ],
+      backgroundColor: Colors.grey[100],
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Laporan Penjualan',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.download, color: Colors.blue),
+                    tooltip: 'Ekspor',
+                    onPressed: () {
+                      final filteredOrders = ref.read(filteredSalesProvider);
+                      final dateRange = ref.read(dateRangeProvider);
+                      _showExportOptions(context, filteredOrders, dateRange);
+                    },
+                  ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          ),
+          InkWell(
+            onTap: () => _selectDateRange(context, ref),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildSummaryCard('Total Pendapatan', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ').format(totalPendapatan)),
-                  const SizedBox(width: 16),
-                  _buildSummaryCard('Total Transaksi', totalTransaksi.toString()),
+                  const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${DateFormat('d MMM y', 'id_ID').format(dateRange.start)} - ${DateFormat('d MMM y', 'id_ID').format(dateRange.end)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_drop_down, color: Colors.grey),
                 ],
               ),
             ),
-            const Divider(height: 24),
-            Expanded(
-              child: allOrdersState.when(
-                data: (_) {
-                  if (filteredOrders.isEmpty) {
-                    return const Center(child: Text('Tidak ada transaksi pada rentang tanggal ini.'));
-                  }
-                  return ListView.separated(
-                    itemCount: filteredOrders.length,
-                    separatorBuilder: (context, index) => const Divider(indent: 16, endIndent: 16),
-                    itemBuilder: (context, index) {
-                      final order = filteredOrders[index];
-                      return ListTile(
-                        title: Text('Order #${order.id} - ${order.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(DateFormat('d MMM y, HH:mm', 'id_ID').format(order.createdAt.toLocal())),
-                        trailing: Text(NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ').format(order.totalPrice)),
-                        onTap: () => _showOrderDetail(context, order),
-                      );
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Error: $e')),
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                _buildSummaryCard('Total Pendapatan', NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ').format(totalPendapatan)),
+                const SizedBox(width: 16),
+                _buildSummaryCard('Total Transaksi', totalTransaksi.toString()),
+              ],
             ),
-          ],
-        ),
+          ),
+          const Divider(height: 24),
+          Expanded(
+            child: allOrdersState.when(
+              data: (_) {
+                if (filteredOrders.isEmpty) {
+                  return const Center(child: Text('Tidak ada transaksi pada rentang tanggal ini.'));
+                }
+                return ListView.separated(
+                  itemCount: filteredOrders.length,
+                  separatorBuilder: (context, index) => const Divider(indent: 16, endIndent: 16),
+                  itemBuilder: (context, index) {
+                    final order = filteredOrders[index];
+                    return ListTile(
+                      title: Text('Order ${order.id} - ${order.name}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(DateFormat('d MMM y, HH:mm', 'id_ID').format(order.createdAt.toLocal())),
+                      trailing: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ').format(order.totalPrice),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.green),
+                          ),
+                          const SizedBox(height: 2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              order.paymentMethod.name,
+                              style: const TextStyle(fontSize: 11, color: Colors.blue, fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () => _showOrderDetail(context, order),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, st) => Center(child: Text('Error: $e')),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -208,15 +245,52 @@ class SalesPage extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Detail Order #${order.id}'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.receipt_long, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text('Order ${order.id}', style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Pelanggan: ${order.name}'),
-            Text('Tanggal: ${DateFormat('d MMM y, HH:mm', 'id_ID').format(order.createdAt)}'),
-            Text('Metode Bayar: ${order.paymentMethod.name}'),
-            Text('Total: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ').format(order.totalPrice)}'),
+            Row(
+              children: [
+                const Icon(Icons.person, size: 18, color: Colors.grey),
+                const SizedBox(width: 6),
+                Expanded(child: Text(order.name, style: const TextStyle(fontWeight: FontWeight.w500))),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(Icons.calendar_today, size: 18, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(DateFormat('d MMM y, HH:mm', 'id_ID').format(order.createdAt)),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(Icons.payment, size: 18, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(order.paymentMethod.name, style: const TextStyle(fontWeight: FontWeight.w500)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.attach_money, size: 18, color: Colors.green),
+                const SizedBox(width: 6),
+                Text(
+                  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ').format(order.totalPrice),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.green),
+                ),
+              ],
+            ),
           ],
         ),
         actions: [

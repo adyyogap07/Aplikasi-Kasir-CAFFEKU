@@ -1,61 +1,39 @@
 import 'package:kasirrrrr/features/product/domain/product_model.dart';
 
 class SalesOrder {
-  final int id;
-  final String name;
-  final String? email;
-  final String gender;
-  final String? phone;
-  final String? birthday;
-  final int totalPrice;
-  final String? note;
-  final int paymentMethodId;
-  final int? paidAmount;
-  final int? changeAmount;
+  final int? id; // id lokal SQLite
+  final String orderNumber;
+  final double total;
+  final String customer;
   final DateTime createdAt;
-  final DateTime updatedAt;
-  final List<OrderProduct> orderProducts;
-  final PaymentMethod paymentMethod;
+  final String status; // 'pending' atau 'sent'
 
   SalesOrder({
-    required this.id,
-    required this.name,
-    this.email,
-    required this.gender,
-    this.phone,
-    this.birthday,
-    required this.totalPrice,
-    this.note,
-    required this.paymentMethodId,
-    this.paidAmount,
-    this.changeAmount,
+    this.id,
+    required this.orderNumber,
+    required this.total,
+    required this.customer,
     required this.createdAt,
-    required this.updatedAt,
-    required this.orderProducts,
-    required this.paymentMethod,
+    required this.status,
   });
 
-  factory SalesOrder.fromJson(Map<String, dynamic> json) {
-    return SalesOrder(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      gender: json['gender'],
-      phone: json['phone'],
-      birthday: json['birthday'],
-      totalPrice: json['total_price'],
-      note: json['note'],
-      paymentMethodId: json['payment_method_id'],
-      paidAmount: json['paid_amount'],
-      changeAmount: json['change_amount'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
-      orderProducts: (json['order_products'] as List)
-          .map((e) => OrderProduct.fromJson(e))
-          .toList(),
-      paymentMethod: PaymentMethod.fromJson(json['payment_method']),
-    );
-  }
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'orderNumber': orderNumber,
+    'total': total,
+    'customer': customer,
+    'createdAt': createdAt.toIso8601String(),
+    'status': status,
+  };
+
+  factory SalesOrder.fromMap(Map<String, dynamic> map) => SalesOrder(
+    id: map['id'],
+    orderNumber: map['orderNumber'],
+    total: map['total'],
+    customer: map['customer'],
+    createdAt: DateTime.parse(map['createdAt']),
+    status: map['status'],
+  );
 }
 
 class OrderProduct {

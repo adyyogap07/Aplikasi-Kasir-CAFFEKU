@@ -12,8 +12,14 @@ class CartController extends StateNotifier<List<OrderItem>> {
   void addToCart(Product product) {
     final index = state.indexWhere((item) => item.product.id == product.id);
     if (index != -1) {
-      state[index].quantity++;
-      state = [...state];
+      final updated = [
+        for (int i = 0; i < state.length; i++)
+          if (i == index)
+            state[i].copyWith(quantity: state[i].quantity + 1)
+          else
+            state[i]
+      ];
+      state = updated;
     } else {
       state = [...state, OrderItem(product: product)];
     }
@@ -23,8 +29,14 @@ class CartController extends StateNotifier<List<OrderItem>> {
     final index = state.indexWhere((item) => item.product.id == product.id);
     if (index != -1) {
       if (state[index].quantity > 1) {
-        state[index].quantity--;
-        state = [...state];
+        final updated = [
+          for (int i = 0; i < state.length; i++)
+            if (i == index)
+              state[i].copyWith(quantity: state[i].quantity - 1)
+            else
+              state[i]
+        ];
+        state = updated;
       } else {
         removeFromCart(product);
       }

@@ -37,13 +37,23 @@ class KasirPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('Kasir'),
-        elevation: 1,
-        backgroundColor: Colors.white,
-      ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Tambahkan judul custom
+          Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            child: const Text(
+              'Kasir',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
           // Widget untuk filter kategori
           const CategoryFilterChips(),
           // Daftar produk dalam bentuk Grid
@@ -103,110 +113,81 @@ class KasirProductGridItem extends ConsumerWidget {
       shadowColor: Colors.black.withOpacity(0.2),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Gambar produk
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  color: Colors.grey[200],
-                  child: product.fullImageUrl != null
-                      ? Image.network(
-                          product.fullImageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.broken_image, color: Colors.grey, size: 40),
-                        )
-                      : const Icon(Icons.inventory, color: Colors.grey, size: 40),
+      child: InkWell(
+        onTap: isOutOfStock ? null : () => cartNotifier.addToCart(product),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Gambar produk
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.grey[200],
+                    child: product.fullImageUrl != null
+                        ? Image.network(
+                            product.fullImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image, color: Colors.grey, size: 40),
+                          )
+                        : const Icon(Icons.inventory, color: Colors.grey, size: 40),
+                  ),
                 ),
-              ),
-              // Detail Produk
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(product.price),
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.w600,
+                // Detail Produk
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(product.price),
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          // Indikator Stok
-          Positioned(
-            top: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Stok: $remainingStock',
-                style: const TextStyle(color: Colors.white, fontSize: 10),
+              ],
+            ),
+            // Indikator Stok
+            Positioned(
+              top: 8,
+              left: 8,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Stok: $remainingStock',
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
               ),
             ),
-          ),
-          // Tombol tambah/kurang
-          Positioned(
-            bottom: 8,
-            right: 8,
-            child: cartItem.quantity == 0
-                ? ElevatedButton(
-                    onPressed: isOutOfStock ? null : () => cartNotifier.addToCart(product),
-                    child: const Text('Tambah'),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          iconSize: 20,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.all(4),
-                          icon: const Icon(Icons.remove),
-                          onPressed: () => cartNotifier.decreaseQuantity(product),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            '${cartItem.quantity}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ),
-                        IconButton(
-                          iconSize: 20,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.all(4),
-                          icon: const Icon(Icons.add),
-                          onPressed: isOutOfStock ? null : () => cartNotifier.addToCart(product),
-                        ),
-                      ],
-                    ),
+            // Overlay jika stok habis
+            if (isOutOfStock)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.white.withOpacity(0.7),
+                  child: const Center(
+                    child: Text('Stok Habis', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                   ),
-          ),
-        ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -219,8 +200,100 @@ class CartSummaryBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cartNotifier = ref.watch(cartProvider.notifier);
+    final cart = ref.watch(cartProvider);
     final totalItems = cartNotifier.totalItems;
     final totalPrice = cartNotifier.totalPrice;
+
+    void showCartModal() {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        isScrollControlled: true,
+        builder: (ctx) => Consumer(
+          builder: (context, ref, _) {
+            final cart = ref.watch(cartProvider);
+            final totalItems = ref.read(cartProvider.notifier).totalItems;
+            final totalPrice = ref.read(cartProvider.notifier).totalPrice;
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16, right: 16, top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Keranjang', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const SizedBox(height: 12),
+                  if (cart.isEmpty)
+                    const Text('Keranjang kosong'),
+                  if (cart.isNotEmpty)
+                    ...cart.map((item) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.product.name,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () => ref.read(cartProvider.notifier).decreaseQuantity(item.product),
+                          ),
+                          Text(
+                            '${item.quantity}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline),
+                            onPressed: item.quantity < item.product.stock
+                                ? () => ref.read(cartProvider.notifier).addToCart(item.product)
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(item.product.price * item.quantity),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    )),
+                  if (cart.isNotEmpty) ...[
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('$totalItems Item', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalPrice),
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('Tutup'),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    }
 
     return Container(
       padding: EdgeInsets.fromLTRB(16, 12, 16, 12 + MediaQuery.of(context).padding.bottom),
@@ -238,6 +311,33 @@ class CartSummaryBar extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Icon keranjang
+          IconButton(
+            icon: Stack(
+              children: [
+                const Icon(Icons.shopping_cart, size: 28),
+                if (totalItems > 0)
+                  Positioned(
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      child: Text(
+                        '$totalItems',
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            tooltip: 'Lihat Keranjang',
+            onPressed: showCartModal,
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -266,7 +366,9 @@ class CartSummaryBar extends ConsumerWidget {
             },
             child: const Row(
               children: [
-                Text('Lanjut'),
+                Icon(Icons.shopping_cart, size: 20),
+                SizedBox(width: 8),
+                Text('Checkout', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 SizedBox(width: 8),
                 Icon(Icons.arrow_forward_ios, size: 16),
               ],

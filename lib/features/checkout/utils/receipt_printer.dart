@@ -109,17 +109,28 @@ class BluetoothReceiptPrinter {
     // 0: Normal, 1: Tebal, 2: Tinggi, 3: Tinggi & Tebal
     // 0: Kiri, 1: Tengah, 2: Kanan
 
-    bluetooth.printCustom("CAFEEKUU", 3, 1);
-    bluetooth.printCustom(
-        "Jalan Mojorot No. 12 Gang 5 Barat, Kota Kediri", 1, 1);
+    bluetooth.printCustom("CAFEEKUU", 2, 1);
+    bluetooth.printCustom("Gang 5 Barat Mohoroto, Kota Kediri", 1, 1);
     bluetooth.printCustom("Telp: 081234567890", 1, 1);
     bluetooth.printNewLine();
 
     // Informasi Transaksi
     String dateTime = DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now());
-    bluetooth.printLeftRight("Waktu:", dateTime, 1);
-    bluetooth.printLeftRight("Kasir:", data.cashierName, 1);
-    bluetooth.printLeftRight("Pelanggan:", data.customerName, 1);
+    bluetooth.printLeftRight(
+      "Waktu:",
+      dateTime,
+      1,
+    );
+    bluetooth.printLeftRight(
+      "Kasir:",
+      data.cashierName,
+      1,
+    );
+    bluetooth.printLeftRight(
+      "Pelanggan:",
+      data.customerName,
+      1,
+    );
     bluetooth.printCustom("--------------------------------", 1, 1);
 
     // Daftar item
@@ -132,19 +143,27 @@ class BluetoothReceiptPrinter {
       String itemPrice = _formatCurrency(item.product.price * item.quantity);
       String qty = '${item.quantity}x';
 
-      bluetooth.printLeftRight("$qty $itemName", itemPrice, 1);
+      bluetooth.printLeftRight(
+        "$qty $itemName",
+        itemPrice,
+        1,
+      );
     }
     bluetooth.printCustom("--------------------------------", 1, 1);
 
     // Total
-    bluetooth.printLeftRight("Total", _formatCurrency(data.totalPrice), 2);
+    bluetooth.printLeftRight(
+      "Total",
+      _formatCurrency(data.totalPrice),
+      2,
+    );
     bluetooth.printLeftRight("Bayar (${data.paymentMethod})",
         _formatCurrency(data.paymentAmount), 1);
     bluetooth.printLeftRight("Kembali", _formatCurrency(data.changeAmount), 1);
     bluetooth.printNewLine();
 
     // Pesan penutup
-    bluetooth.printCustom("Terima Kasih!", 2, 1);
+    bluetooth.printCustom("Terima Kasih!", 1, 1);
     bluetooth.printCustom("Sudah Datang di Cafe kami", 1, 1);
     bluetooth.printNewLine();
     bluetooth.printNewLine();

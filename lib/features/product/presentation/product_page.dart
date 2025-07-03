@@ -36,17 +36,27 @@ class ProductPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('Data Produk'),
-        elevation: 1,
-        backgroundColor: Colors.white,
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(productControllerProvider);
         },
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Tambahkan judul custom
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: const Text(
+                'Data Produk',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
             // Widget untuk filter kategori
             const CategoryFilterChips(),
             // Daftar produk dalam bentuk Grid

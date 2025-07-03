@@ -200,7 +200,6 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
-              labelText: 'Email',
               hintText: 'contoh@email.com',
               prefixIcon: const Icon(Icons.email_outlined),
               border: OutlineInputBorder(
@@ -210,13 +209,13 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
               filled: true,
               fillColor: Colors.grey.shade100,
             ),
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 20),
           TextField(
             controller: _passwordController,
             obscureText: !_isPasswordVisible,
             decoration: InputDecoration(
-              labelText: 'Password',
               hintText: 'Masukkan password',
               prefixIcon: const Icon(Icons.lock_outline),
               suffixIcon: IconButton(
@@ -235,6 +234,7 @@ class _LoginPageState extends ConsumerState<LoginPage> with SingleTickerProvider
               filled: true,
               fillColor: Colors.grey.shade100,
             ),
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 30),
           SizedBox(
